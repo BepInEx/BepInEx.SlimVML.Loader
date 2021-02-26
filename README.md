@@ -14,5 +14,6 @@ load ordering, dependency management and automated Unity scene entrypoint handli
 
 1. Grab `SlimVML.Loader.dll` from releases and put into `BepInEx/patchers` folder.
 2. Install SlimVML DLLs like you normally would (i.e. into `SlimVML/Mods`).
-3. Run the game.
-4. (Optional) Close the game, and edit loader configuration located at `BepInEx/config/SlimVML.cfg`.
+3. (Optional) If you're using SlimVML, grab [base DLLs from SlimVML repo](https://github.com/PJninja/InSlimVML/tree/main/InSlimVML/Mods) and put them into `SlimVML/Mods`.
+4. Run the game.
+5. (Optional) Close the game, and edit loader configuration located at `BepInEx/config/SlimVML.cfg`.
