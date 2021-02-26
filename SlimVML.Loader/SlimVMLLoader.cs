@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Text;
 using BepInEx;
 using BepInEx.Configuration;
 using BepInEx.Logging;
@@ -21,12 +22,29 @@ namespace SlimVML.Loader
             new(Path.Combine(Paths.ConfigPath, CONFIG_FILE_NAME), true);
 
         private static readonly ConfigEntry<string> ModFolder = Config.Bind("General", "ModFolder",
-            Path.Combine("InSlimVML", "Mods"), "Folder from which to load all DLLs");
+            "$(GameRoot)/InSlimVML/Mods",
+            new StringBuilder()
+                .AppendLine("Folder from which to load all DLLs. Supports following template variables:")
+                .AppendLine("$(BepInExRoot) - BepInEx folder")
+                .AppendLine("$(GameRoot) - Game root folder")
+                .ToString());
 
         private static readonly ConfigEntry<string> IgnoredMods = Config.Bind("General", "IgnoredMods", "0Harmony.dll",
             "List of ignored DLLs (comma separated)");
 
+        private static readonly Dictionary<string, string> PathTemplates = new()
+        {
+            ["BepInExRoot"] = Paths.BepInExRootPath,
+            ["GameRoot"] = Paths.GameRootPath
+        };
+
         public static IEnumerable<string> TargetDLLs { get; } = new string[0];
+
+        private static string ExpandPath(string template)
+        {
+            return Path.GetFullPath(PathTemplates.Aggregate(template,
+                (current, kv) => current.Replace($"$({kv.Key})", kv.Value)));
+        }
 
         public static void Patch(AssemblyDefinition ad)
         {
@@ -34,7 +52,7 @@ namespace SlimVML.Loader
 
         public static void Finish()
         {
-            var loadPath = Path.GetFullPath(ModFolder.Value);
+            var loadPath = ExpandPath(ModFolder.Value);
 
             if (!Directory.Exists(loadPath))
             {
